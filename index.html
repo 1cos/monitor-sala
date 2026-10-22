@@ -29,7 +29,7 @@
 // visibile per 60 s all'avvio, sempre con ?info=1, tasto OK/Invio o "i" per mostrarlo/nasconderlo.
 const q=new URLSearchParams(location.search);
 const entro=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);   // mai bloccare lo slideshow
-const SEC=+(q.get("sec")||8), OGNI=+(q.get("ogni")||5), VIDEO=q.get("video")==="1";
+const SEC=+(q.get("sec")||8), OGNI=+(q.get("ogni")||5), VIDEO=false;   // decisione Max 22/10: per ora SOLO FOTO, i video si riaccendono più avanti
 const MEDIA="media-v1";
 const info=document.getElementById("info");
 let infoFissa=q.get("info")==="1";
