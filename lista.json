@@ -1,5 +1,5 @@
 {
-"versione": 1,
+"versione": 2,
 "piatti": [
 "foto/p_da854824b2.jpg",
 "foto/p_d6e69aeded.jpg",
@@ -498,5 +498,27 @@
 "foto/r_4606f9f73a.jpg",
 "foto/r_e947f28ccf.jpg",
 "foto/r_edbb23f9be.jpg"
+],
+"video": [
+"video/v_8b2f86942f.mp4",
+"video/v_0d09bc727a.mp4",
+"video/v_50552a6ed9.mp4",
+"video/v_36e07cf881.mp4",
+"video/v_7f8d07b07a.mp4",
+"video/v_3a6bdcb2ba.mp4",
+"video/v_634965e742.mp4",
+"video/v_2d3c2b8979.mp4",
+"video/v_e5b4a0f490.mp4",
+"video/v_b20129d7f5.mp4",
+"video/v_eacf16be08.mp4",
+"video/v_35570b8a30.mp4",
+"video/v_63de522b82.mp4",
+"video/v_253a7d6569.mp4",
+"video/v_ee201a08f9.mp4",
+"video/v_39621737d4.mp4",
+"video/v_1945226556.mp4",
+"video/v_74195ae53f.mp4",
+"video/v_216bc9be15.mp4",
+"video/v_5b27896dd5.mp4"
 ]
 }

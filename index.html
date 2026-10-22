@@ -24,20 +24,22 @@
 <script>
 // Slideshow sala (STUPIDO S-05): 8 s per foto, zoom lento 6%, dissolvenza 1,5 s,
 // una cheese wheel ogni 5 piatti, ordine casuale senza ripetizioni.
+// ?video=1 aggiunge i video della cheese wheel (muti, mostrati per intero) al mazzo della cheese wheel.
 // Le foto restano nella memoria del TV (sw.js). Il riquadro giallo mostra lo stato della memoria:
 // visibile per 60 s all'avvio, sempre con ?info=1, tasto OK/Invio o "i" per mostrarlo/nasconderlo.
 const q=new URLSearchParams(location.search);
 const entro=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);   // mai bloccare lo slideshow
-const SEC=+(q.get("sec")||8), OGNI=+(q.get("ogni")||5);
+const SEC=+(q.get("sec")||8), OGNI=+(q.get("ogni")||5), VIDEO=q.get("video")==="1";
+const MEDIA="media-v1";
 const info=document.getElementById("info");
 let infoFissa=q.get("info")==="1";
 if(!infoFissa) setTimeout(()=>info.classList.add("nascosto"),60000);
 
-const stato={sw:"?",persist:"?",spazio:"?",salvate:0,totale:0,primo:"?",browser:""};
+const stato={sw:"?",persist:"?",spazio:"?",salvate:0,totale:0,primo:"?",browser:"",nomi:new Set()};
 function scriviInfo(){
   info.textContent=
     `MONITOR SALA · prova memoria\n`+
-    `Foto salvate nel TV: ${stato.salvate} su ${stato.totale}\n`+
+    `File salvati nel TV: ${stato.salvate} su ${stato.totale}  (mancano ${Math.max(0,stato.totale-stato.salvate)})${VIDEO?" · con video":" · solo foto"}\n`+
     `Salvataggio automatico (Service Worker): ${stato.sw}\n`+
     `Memoria permanente: ${stato.persist}\n`+
     `Spazio: ${stato.spazio}\n`+
@@ -49,7 +51,7 @@ stato.browser=(navigator.userAgent||"").replace(/\s*\(KHTML, like Gecko\)/,"").s
 
 async function memoria(){
   if("serviceWorker" in navigator){
-    try{ const reg=await entro(navigator.serviceWorker.register("sw.js"),8000); stato.sw=reg?"SÌ":"in attesa"; }catch(e){ stato.sw="NO ("+e.name+")"; }
+    try{ const pr=navigator.serviceWorker.register("sw.js"); pr.then(()=>{stato.sw="SÌ";scriviInfo();}).catch(e=>{stato.sw="NO ("+e.name+")";}); const reg=await entro(pr,8000); stato.sw=reg?"SÌ":"in attesa"; }catch(e){ stato.sw="NO ("+e.name+")"; }
   } else stato.sw="NO (non supportato)";
   if(navigator.storage&&navigator.storage.persist){
     try{ const ok=(await entro(navigator.storage.persisted(),3000))||(await entro(navigator.storage.persist(),5000)); stato.persist=ok?"SÌ":"NO"; }catch(e){ stato.persist="NO"; }
@@ -58,7 +60,7 @@ async function memoria(){
 }
 async function contaSalvate(){
   try{
-    if("caches" in window){ const c=await caches.open("foto-v1"); stato.salvate=(await c.keys()).length; }
+    if("caches" in window){ const c=await caches.open(MEDIA); const k=await c.keys(); stato.salvate=k.filter(r=>stato.nomi.has(new URL(r.url).pathname.split("/").slice(-2).join("/"))).length; }
     if(navigator.storage&&navigator.storage.estimate){ const s=await navigator.storage.estimate();
       stato.spazio=`usati ${(s.usage/1e6).toFixed(0)} MB su ${(s.quota/1e6).toFixed(0)} MB concessi`; }
   }catch(e){}
@@ -67,7 +69,7 @@ async function contaSalvate(){
 // Scarica in sottofondo, una alla volta, le foto non ancora salvate (passano dal Service Worker).
 async function riempiMemoria(tutte){
   if(!("caches" in window)) return;
-  const c=await caches.open("foto-v1");
+  const c=await caches.open(MEDIA);
   for(const f of tutte){
     if(await c.match(new URL(f,location.href).href)) continue;
     try{ const r=await fetch(f); if(r.ok&&!(navigator.serviceWorker&&navigator.serviceWorker.controller)) await c.put(f,r); }catch(e){ await new Promise(r=>setTimeout(r,30000)); }
@@ -86,9 +88,22 @@ const strati=[document.getElementById("a"),document.getElementById("b")]; let so
 function avanti(){
   const nome=prossimo(); if(!nome) return;
   const s=strati[1-sopra]; s.innerHTML="";
+  const mostra=()=>{ s.classList.add("visibile"); strati[sopra].classList.remove("visibile"); sopra=1-sopra; };
+  if(/\.mp4$/.test(nome)){
+    // video: letto dalla memoria come file intero (blob), così il TV non lo riscarica a pezzi
+    fetch(nome).then(r=>{ if(!r.ok) throw 0; return r.blob(); }).then(b=>{
+      const v=document.createElement("video"); v.muted=true; v.playsInline=true; v.autoplay=true;
+      const u=URL.createObjectURL(b); v.src=u;
+      v.oncanplay=()=>{ v.oncanplay=null; mostra(); v.play().catch(()=>{}); };
+      const fine=()=>{ URL.revokeObjectURL(u); avanti(); }; let finito=false;
+      v.onended=()=>{ if(!finito){finito=true; fine();} }; setTimeout(()=>{ if(!finito){finito=true; fine();} },20000);
+      v.onerror=()=>{ if(!finito){finito=true; setTimeout(fine,500);} };
+      s.appendChild(v);
+    }).catch(()=>setTimeout(avanti,2000));
+    return;
+  }
   const img=new Image();
-  img.onload=()=>{ img.style.setProperty("--durata",(SEC+1.5)+"s"); img.classList.add("zoom");
-    s.classList.add("visibile"); strati[sopra].classList.remove("visibile"); sopra=1-sopra; setTimeout(avanti,SEC*1000); };
+  img.onload=()=>{ img.style.setProperty("--durata",(SEC+1.5)+"s"); img.classList.add("zoom"); mostra(); setTimeout(avanti,SEC*1000); };
   img.onerror=()=>setTimeout(avanti,2000);   // foto non raggiungibile: si passa alla prossima
   img.src=nome; s.appendChild(img);
 }
@@ -97,7 +112,8 @@ document.addEventListener("keydown",e=>{ if(["i","Enter"," "].includes(e.key)) i
 (async()=>{
   scriviInfo();
   lista=await (await fetch("lista.json",{cache:"no-cache"})).json();
-  const tutte=[...lista.piatti,...lista.ruota]; stato.totale=tutte.length;
+  if(VIDEO&&lista.video) lista.ruota=[...lista.ruota,...lista.video];
+  const tutte=[...lista.piatti,...lista.ruota]; stato.totale=tutte.length; stato.nomi=new Set(tutte);
   avanti();
   await entro(memoria(),10000); await contaSalvate();
   if(navigator.serviceWorker) await entro(navigator.serviceWorker.ready,10000);

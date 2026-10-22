@@ -1,15 +1,15 @@
-// Monitor sala: tiene le foto nella memoria del TV.
+// Monitor sala: tiene foto e video nella memoria del TV.
 // Foto: prima dalla memoria, internet solo se mancano (ogni foto ha un nome unico, non cambia mai).
 // Pagina e lista: prima internet (per gli aggiornamenti), memoria se internet manca.
-const FOTO = "foto-v1", PAGINE = "pagine-v1";
+const FOTO = "media-v1", PAGINE = "pagine-v1";
 
 self.addEventListener("install", e => { self.skipWaiting(); });
-self.addEventListener("activate", e => { e.waitUntil(self.clients.claim()); });
+self.addEventListener("activate", e => { e.waitUntil(caches.delete("foto-v1").then(() => self.clients.claim())); });
 
 self.addEventListener("fetch", e => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET" || url.origin !== location.origin) return;
-  if (url.pathname.includes("/foto/")) {
+  if (url.pathname.includes("/foto/") || url.pathname.includes("/video/")) {
     e.respondWith(caches.open(FOTO).then(async c => {
       const m = await c.match(e.request);
       if (m) return m;
