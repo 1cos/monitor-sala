@@ -26,14 +26,14 @@
 // una cheese wheel ogni 5 piatti, ordine casuale senza ripetizioni.
 // ?video=1 aggiunge i video della cheese wheel (muti, mostrati per intero) al mazzo della cheese wheel.
 // Le foto restano nella memoria del TV (sw.js). Il riquadro giallo mostra lo stato della memoria:
-// visibile per 60 s all'avvio, sempre con ?info=1, tasto OK/Invio o "i" per mostrarlo/nasconderlo.
+// visibile solo con ?info=1; tasto OK/Invio o "i" per mostrarlo/nasconderlo.
 const q=new URLSearchParams(location.search);
 const entro=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);   // mai bloccare lo slideshow
 const SEC=+(q.get("sec")||8), OGNI=+(q.get("ogni")||5), VIDEO=false;   // decisione Max 22/10: per ora SOLO FOTO, i video si riaccendono più avanti
 const MEDIA="media-v1";
 const info=document.getElementById("info");
 let infoFissa=q.get("info")==="1";
-if(!infoFissa) setTimeout(()=>info.classList.add("nascosto"),60000);
+if(!infoFissa) info.classList.add("nascosto");   // per i clienti nessuna scritta: il riquadro solo con ?info=1 (o tasto OK)
 
 const stato={sw:"?",persist:"?",spazio:"?",salvate:0,totale:0,primo:"?",browser:"",nomi:new Set()};
 function scriviInfo(){
