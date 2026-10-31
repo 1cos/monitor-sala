@@ -122,6 +122,17 @@ document.addEventListener("keydown",e=>{ if(["i","Enter"," "].includes(e.key)) i
   riempiMemoria(tutte);
   setInterval(contaSalvate,15000);
 })();
+
+// Aggiornamento automatico (Max 31/10): ogni 5 minuti controlla se pagina, elenco foto o tema sono cambiati e, se sì, si ricarica da sola.
+// Senza rete o con un errore non fa nulla. Dopo la prima volta che la pagina viene ricaricata a mano, non serve più farlo.
+(function(){
+  const FILES=["index.html","lista.json","halloween.js"];
+  const firma=async()=>{ let s=""; for(const f of FILES){ const r=await fetch(f+"?v="+Date.now(),{cache:"no-store"}); if(!r.ok) throw 0; const x=await r.text(); s+=f+":"+x.length+":"+hash(x)+";"; } return s; };
+  const hash=x=>{ let h=0; for(let i=0;i<x.length;i++) h=(h*31+x.charCodeAt(i))|0; return h; };
+  let base=null;
+  const giro=async()=>{ try{ const s=await firma(); if(base===null) base=s; else if(s!==base) location.reload(); }catch(e){} };
+  setTimeout(giro,15000); setInterval(giro,300000);
+})();
 </script>
 </body>
 </html>

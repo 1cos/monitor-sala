@@ -36,4 +36,6 @@
     zucca.replace('class="zucca"', 'class="zucca sx"') + zucca.replace('class="zucca"', 'class="zucca dx"') +
     pipi(14, 17, 0, 6) + pipi(30, 23, 6, 9) + pipi(8, 29, 13, 5);
   document.addEventListener('DOMContentLoaded', () => document.body.appendChild(d));
+  // a mezzanotte (ora di Chicago) le decorazioni spariscono da sole, anche senza ricaricare la pagina
+  setInterval(() => { if (new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date()) !== '2026-10-31' && new URLSearchParams(location.search).get('halloween') !== '1') d.remove(); }, 60000);
 })();
