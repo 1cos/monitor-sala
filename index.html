@@ -80,6 +80,11 @@ async function riempiMemoria(tutte){
   contaSalvate();
 }
 
+// Pulizia (1/11): toglie dalla memoria del TV le foto che non sono più nell'elenco, così non si riempie.
+async function puliMemoria(){
+  try{ const c=await caches.open(MEDIA); for(const r of await c.keys()){ const k=new URL(r.url).pathname.split("/").slice(-2).join("/"); if(/^(foto|video)\//.test(k)&&!stato.nomi.has(k)) await c.delete(r); } }catch(e){}
+}
+
 function mescola(l){l=l.slice();for(let i=l.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[l[i],l[j]]=[l[j],l[i]]}return l}
 let lista,mazzoP=[],mazzoR=[],contaP=0;
 function prossimo(){
@@ -119,6 +124,7 @@ document.addEventListener("keydown",e=>{ if(["i","Enter"," "].includes(e.key)) i
   avanti();
   await entro(memoria(),10000); await contaSalvate();
   if(navigator.serviceWorker) await entro(navigator.serviceWorker.ready,10000);
+  await entro(puliMemoria(),60000);
   riempiMemoria(tutte);
   setInterval(contaSalvate,15000);
 })();
