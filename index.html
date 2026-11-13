@@ -86,8 +86,11 @@ async function puliMemoria(){
 }
 
 function mescola(l){l=l.slice();for(let i=l.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[l[i],l[j]]=[l[j],l[i]]}return l}
-let lista,mazzoP=[],mazzoR=[],contaP=0;
+let lista,mazzoP=[],mazzoR=[],mazzoS=[],contaP=0,contaT=0;
+// Feature della serata (Max 13/11): finché non scade "stasera.fino", una diapositiva ogni 5 è una foto di stasera.
 function prossimo(){
+  const st=lista.stasera;
+  if(st&&st.foto&&st.foto.length&&Date.now()<Date.parse(st.fino)){ contaT++; if(contaT>=OGNI){ contaT=0; if(!mazzoS.length) mazzoS=mescola(st.foto); return mazzoS.pop(); } }
   if(contaP>=OGNI&&lista.ruota.length){ contaP=0; if(!mazzoR.length) mazzoR=mescola(lista.ruota); return mazzoR.pop(); }
   contaP++; if(!mazzoP.length) mazzoP=mescola(lista.piatti); return mazzoP.pop();
 }
@@ -120,7 +123,7 @@ document.addEventListener("keydown",e=>{ if(["i","Enter"," "].includes(e.key)) i
   scriviInfo();
   lista=await (await fetch("lista.json",{cache:"no-cache"})).json();
   if(VIDEO&&lista.video) lista.ruota=[...lista.ruota,...lista.video];
-  const tutte=[...lista.piatti,...lista.ruota]; stato.totale=tutte.length; stato.nomi=new Set(tutte);
+  const tutte=[...new Set([...lista.piatti,...lista.ruota,...((lista.stasera&&lista.stasera.foto)||[])])]; stato.totale=tutte.length; stato.nomi=new Set(tutte);
   avanti();
   await entro(memoria(),10000); await contaSalvate();
   if(navigator.serviceWorker) await entro(navigator.serviceWorker.ready,10000);
