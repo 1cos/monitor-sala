@@ -1,5 +1,5 @@
 {
- "versione": 5,
+ "versione": 6,
  "piatti": [
   "foto/c_3b8efc3edc.jpg",
   "foto/c_ed75e3e905.jpg",
@@ -335,9 +335,7 @@
   "foto/p_8ab0902a16.jpg",
   "foto/p_b2dd29c164.jpg",
   "foto/p_815b338226.jpg",
-  "foto/c_081a7a712e.jpg",
-  "foto/p_8c0a11cc44.jpg",
-  "foto/c_524f4d57af.jpg"
+  "foto/c_081a7a712e.jpg"
  ],
  "ruota": [
   "foto/r_b884f452db.jpg",
@@ -397,10 +395,11 @@
   "video/v_5b27896dd5.mp4"
  ],
  "stasera": {
-  "fino": "2026-11-14T09:00:00Z",
+  "fino": "2026-11-15T09:00:00Z",
   "foto": [
-   "foto/p_8c0a11cc44.jpg",
-   "foto/c_524f4d57af.jpg"
+   "foto/f_1248704a34.jpg",
+   "foto/f_12a0110077.jpg",
+   "foto/f_f148379e1e.jpg"
   ]
  }
 }
