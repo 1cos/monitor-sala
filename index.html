@@ -24,14 +24,14 @@
 <div id="b" class="strato"></div>
 <div id="info"></div>
 <script>
-// Slideshow sala (STUPIDO S-05): 8 s per foto, zoom lento 6%, dissolvenza 1,5 s,
+// Slideshow sala (STUPIDO S-05): 12 s per foto (Max 13/11, erano 8), zoom lento 6%, dissolvenza 1,5 s,
 // una cheese wheel ogni 5 piatti, ordine casuale senza ripetizioni.
 // ?video=1 aggiunge i video della cheese wheel (muti, mostrati per intero) al mazzo della cheese wheel.
 // Le foto restano nella memoria del TV (sw.js). Il riquadro giallo mostra lo stato della memoria:
 // visibile solo con ?info=1; tasto OK/Invio o "i" per mostrarlo/nasconderlo.
 const q=new URLSearchParams(location.search);
 const entro=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);   // mai bloccare lo slideshow
-const SEC=+(q.get("sec")||8), OGNI=+(q.get("ogni")||5), VIDEO=false;   // decisione Max 22/10: per ora SOLO FOTO, i video si riaccendono più avanti
+const SEC=+(q.get("sec")||12), OGNI=+(q.get("ogni")||5), VIDEO=false;   // decisione Max 22/10: per ora SOLO FOTO, i video si riaccendono più avanti
 const MEDIA="media-v1";
 const info=document.getElementById("info");
 let infoFissa=q.get("info")==="1";
