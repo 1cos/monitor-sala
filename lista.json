@@ -1,5 +1,5 @@
 {
- "versione": 8,
+ "versione": 9,
  "piatti": [
   "foto/c_3b8efc3edc.jpg",
   "foto/c_ed75e3e905.jpg",
@@ -399,7 +399,8 @@
   "foto": [
    "foto/f_6f48db2b8f.jpg",
    "foto/f_801ba2e471.jpg",
-   "foto/f_4e58f86b5e.jpg"
+   "foto/f_4e58f86b5e.jpg",
+   "foto/f_852c7901f0.jpg"
   ]
  }
 }
